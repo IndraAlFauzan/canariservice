@@ -8,11 +8,9 @@ class Admin extends Model
 {
     protected $fillable = ['name'];
     protected $table = 'admin';
-    
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-
-    
 }

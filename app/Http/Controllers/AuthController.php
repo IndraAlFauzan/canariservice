@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -11,28 +13,38 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    /**
+     * Register a new user.
+     *
+     * @response 201 {
+     *   "status_code": 201,
+     *   "message": "User created successfully",
+     *   "data": {
+     *     "id": 1,
+     *     "name": "john",
+     *     "email": "john@example.com",
+     *     "role_id": 2
+     *   }
+     * }
+     * @response 400 {
+     *   "status_code": 400,
+     *   "message": "The email has already been taken.",
+     *   "data": null
+     * }
+     * @response 500 {
+     *   "status_code": 500,
+     *   "message": "Server error",
+     * }
+     */
+    public function register(RegisterRequest $request)
     {
         // Validasi request termasuk validasi role
-        $validatedData = Validator::make($request->all(), [
-            'username'     => 'required|without_spaces|string|max:255 ',
-            'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
-            'role_id' => 'required|exists:roles,id',
-        ]);
 
-        if ($validatedData->fails()) {
-            return response()->json([
-                'status_code' => 400,
-                'message' => $validatedData->errors()->first(),
-                'data'    => null,
-            ], 400);
-        }
 
         try {
             // Buat user baru
             $user = new User;
-            $user->name     = $request->name;
+            $user->name     = $request->username;
             $user->email    = $request->email;
             $user->password = Hash::make($request->password);
             $user->role_id     = $request->role_id;
@@ -54,13 +66,30 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-        ]);
 
+    /**
+     * Login user.
+     *
+     * @response 200 {
+     *   "message": "Login berhasil",
+     *   "status_code": 200,
+     *   "data": {
+     *     "id": 1,
+     *     "name": "john",
+     *     "email": "john@example.com",
+     *     "role": "admin",
+     *     "token": "eyJ0eXAiOiJKV1QiLCJhbGci..."
+     *   }
+     * }
+     * @response 401 {
+     *   "message": "Email atau password salah",
+     *   "status_code": 401,
+     *   "data": null
+     * }
+     */
+
+    public function login(LoginRequest $request)
+    {
         $credentials = $request->only('email', 'password');
 
         if (!$token = Auth::guard('api')->attempt($credentials)) {
@@ -71,21 +100,29 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $user = Auth::guard('api')->user();
+        try {
+            $user = Auth::guard('api')->user();
 
-        $formatedUser = [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role->name,
-            'token' => $token,
-        ];
-        return response()->json([
-            'message' => 'Login berhasil',
-            'status_code' => 200,
-            'data' => $formatedUser,
+            $formatedUser = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role->name,
+                'token' => $token
+            ];
 
-        ], 200);
+            return response()->json([
+                'message' => 'Login berhasil',
+                'status_code' => 200,
+                'data' => $formatedUser
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'status_code' => 500,
+                'data' => null
+            ], 500);
+        }
     }
 
     public function me()

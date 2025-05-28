@@ -13,4 +13,12 @@ class Admin extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function induk()
+    {
+        return $this->hasMany(Induk::class);
+    }
+    public function anak()
+    {
+        return $this->hasMany(Anak::class);
+    }
 }

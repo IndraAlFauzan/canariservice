@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddAdminRequest;
 use App\Models\Admin;
 use App\Models\Buyer;
 use Illuminate\Http\Request;
@@ -11,20 +12,41 @@ use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
 {
-    public function AdminProfile(Request $request)
+
+    /**
+     * Tambah profil admin
+     *
+     * Endpoint untuk membuat profil admin. Hanya bisa dilakukan satu kali per user.
+     *
+     * @authenticated
+     * @bodyParam name string required Nama admin. Contoh: Andi
+     *
+     * @response 201 {
+     *   "message": "Profil admin berhasil dibuat",
+     *   "status_code": 201,
+     *   "data": {
+     *     "id": 1,
+     *     "name": "Andi"
+     *   }
+     * }
+     * @response 400 {
+     *   "status_code": 400,
+     *   "message": "The name field is required.",
+     *   "data": null
+     * }
+     * @response 409 {
+     *   "message": "Profil admin sudah ada",
+     *   "status_code": 409,
+     *   "data": null
+     * }
+     * @response 500 {
+     *   "status_code": 500,
+     *   "message": "Internal Server Error: ...",
+     *   "data": null
+     * }
+     */
+    public function AdminProfile(AddAdminRequest $request)
     {
-        $validatedData = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-        ]);
-
-        if ($validatedData->fails()) {
-            return response()->json([
-                'status_code' => 400,
-                'message' => $validatedData->errors()->first(),
-                'data' => null,
-            ], 400);
-        }
-
 
         try {
             $user = Auth::guard('api')->user();
@@ -57,21 +79,47 @@ class ProfileController extends Controller
         }
     }
 
+    /**
+     * Tambah profil pembeli
+     *
+     * Endpoint untuk membuat profil pembeli. Hanya bisa dilakukan satu kali per user.
+     *
+     * @authenticated
+     * @bodyParam name string required Nama pembeli. Contoh: Budi
+     * @bodyParam address string required Alamat pembeli. Contoh: Jl. Merdeka No. 10
+     * @bodyParam phone string required Nomor telepon pembeli. Contoh: 08123456789
+     * @bodyParam photo file Foto pengguna (JPEG/PNG/JPG/GIF). Tidak wajib.
+     *
+     * @response 201 {
+     *   "message": "Profil pembeli berhasil dibuat",
+     *   "status_code": 201,
+     *   "data": {
+     *     "id": 2,
+     *     "name": "Budi",
+     *     "address": "Jl. Merdeka No. 10",
+     *     "phone": "08123456789",
+     *     "photo": "/storage/photos/abc123.jpg"
+     *   }
+     * }
+     * @response 400 {
+     *   "status_code": 400,
+     *   "message": "The phone field is required.",
+     *   "data": null
+     * }
+     * @response 409 {
+     *   "message": "Profil pembeli sudah ada",
+     *   "status_code": 409,
+     *   "data": null
+     * }
+     * @response 500 {
+     *   "status_code": 500,
+     *   "message": "Internal Server Error: ...",
+     *   "data": null
+     * }
+     */
+
     public function addBuyerProfile(Request $request)
     {
-        $validatedData = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:15',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-        if ($validatedData->fails()) {
-            return response()->json([
-                'status_code' => 400,
-                'message' => $validatedData->errors()->first(),
-                'data' => null,
-            ], 400);
-        }
 
         try {
             $user = Auth::guard('api')->user();

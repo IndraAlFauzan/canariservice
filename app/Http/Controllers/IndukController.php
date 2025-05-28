@@ -26,7 +26,7 @@ class IndukController extends Controller
      *       "jenis_kelamin": "jantan",
      *       "jenis_kenari": "Yorkshire",
      *       "keterangan": "Induk aktif",
-     *       "gambar_induk": "/storage/photos/induk1.jpg",
+     *       "gambar_burung": "/storage/photos/induk1.jpg",
      *       "created_at": "2024-01-15T12:00:00Z",
      *      "updated_at": "2024-01-15T12:00:00Z"
      *          },
@@ -37,7 +37,7 @@ class IndukController extends Controller
      *      "jenis_kelamin": "jantan",
      *      "jenis_kenari": "Yorkshire",
      *      "keterangan": "Induk aktif",
-     *      "gambar_induk": "/storage/photos/induk1.jpg",
+     *      "gambar_burung": "/storage/photos/induk1.jpg",
      *      "created_at": "2024-01-15T12:00:00Z",
      *      "updated_at": "2024-01-15T12:00:00Z"
      *  },
@@ -90,7 +90,7 @@ class IndukController extends Controller
      * @bodyParam jenis_kelamin string required Jenis kelamin. Contoh: jantan
      * @bodyParam jenis_kenari string required Jenis kenari. Contoh: Yorkshire
      * @bodyParam keterangan string Keterangan tambahan. Contoh: Induk aktif
-     * @bodyParam gambar_induk file Gambar burung (JPEG/PNG/JPG)
+     * @bodyParam gambar_burung file Gambar burung (JPEG/PNG/JPG)
      *
      * @response 201 {
      *   "message": "Data induk berhasil ditambahkan",
@@ -103,7 +103,7 @@ class IndukController extends Controller
      *   "jenis_kelamin": "jantan",
      *   "jenis_kenari": "Yorkshire",
      *   "keterangan": "Induk aktif",
-     *  "gambar_induk": "/storage/photos/induk1.jpg",
+     *  "gambar_burung": "/storage/photos/induk1.jpg",
      *   "created_at": "2024-01-15T12:00:00Z",
      *  "updated_at": "2024-01-15T12:00:00Z"
      *  },
@@ -135,9 +135,9 @@ class IndukController extends Controller
             $induk->jenis_kenari = $request->jenis_kenari;
             $induk->keterangan = $request->keterangan;
 
-            if ($request->hasFile('gambar_induk')) {
-                $path = $request->file('gambar_induk')->store('public/photos');
-                $induk->gambar_induk = Storage::url($path);
+            if ($request->hasFile('gambar_burung')) {
+                $path = $request->file('gambar_burung')->store('public/photos');
+                $induk->gambar_burung = Storage::url($path);
             }
 
 
@@ -176,7 +176,7 @@ class IndukController extends Controller
      *   "jenis_kelamin": "jantan",
      *   "jenis_kenari": "Yorkshire",
      *   "keterangan": "Induk aktif",
-     *  "gambar_induk": "/storage/photos/induk1.jpg",
+     *  "gambar_burung": "/storage/photos/induk1.jpg",
      *   "created_at": "2024-01-15T12:00:00Z",
      *  "updated_at": "2024-01-15T12:00:00Z"
      *  }
@@ -244,13 +244,13 @@ class IndukController extends Controller
             'keterangan',
         ]));
 
-        if ($request->hasFile('gambar_induk')) {
-            if ($induk->gambar_induk) {
-                Storage::delete(str_replace('/storage/', 'public/', $induk->gambar_induk));
+        if ($request->hasFile('gambar_burung')) {
+            if ($induk->gambar_burung) {
+                Storage::delete(str_replace('/storage/', 'public/', $induk->gambar_burung));
             }
 
-            $path = $request->file('gambar_induk')->store('public/photos');
-            $induk->gambar_induk = Storage::url($path);
+            $path = $request->file('gambar_burung')->store('public/photos');
+            $induk->gambar_burung = Storage::url($path);
         }
 
         $induk->save();
@@ -291,8 +291,8 @@ class IndukController extends Controller
             ]);
         }
 
-        if ($induk->gambar_induk) {
-            Storage::delete(str_replace('/storage/', 'public/', $induk->gambar_induk));
+        if ($induk->gambar_burung) {
+            Storage::delete(str_replace('/storage/', 'public/', $induk->gambar_burung));
         }
 
         $induk->delete();

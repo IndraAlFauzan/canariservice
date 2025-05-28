@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AddAdminRequest;
+use App\Http\Requests\AddBuyerRequest;
 use App\Models\Admin;
 use App\Models\Buyer;
 use Illuminate\Http\Request;
@@ -79,6 +80,37 @@ class ProfileController extends Controller
         }
     }
 
+    public function getAdminProfile()
+    {
+        try {
+            $user = Auth::guard('api')->user();
+            $admin = Admin::where('user_id', $user->id)->first();
+
+            if (!$admin) {
+                return response()->json([
+                    'message' => 'Profil admin tidak ditemukan',
+                    'status_code' => 404,
+                    'data' => null
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Profil admin ditemukan',
+                'status_code' => 200,
+                'data' => [
+                    'id' => $admin->id,
+                    'name' => $admin->name,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Internal Server Error: ' . $e->getMessage(),
+                'data' => null,
+            ], 500);
+        }
+    }
+
     /**
      * Tambah profil pembeli
      *
@@ -118,7 +150,7 @@ class ProfileController extends Controller
      * }
      */
 
-    public function addBuyerProfile(Request $request)
+    public function addBuyerProfile(AddBuyerRequest $request)
     {
 
         try {
@@ -156,6 +188,40 @@ class ProfileController extends Controller
                     'photo' => $buyer->photo,
                 ]
             ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Internal Server Error: ' . $e->getMessage(),
+                'data' => null,
+            ], 500);
+        }
+    }
+
+    public function getBuyerProfile()
+    {
+        try {
+            $user = Auth::guard('api')->user();
+            $buyer = Buyer::where('user_id', $user->id)->first();
+
+            if (!$buyer) {
+                return response()->json([
+                    'message' => 'Profil pembeli tidak ditemukan',
+                    'status_code' => 404,
+                    'data' => null
+                ], 404);
+            }
+
+            return response()->json([
+                'message' => 'Profil pembeli ditemukan',
+                'status_code' => 200,
+                'data' => [
+                    'id' => $buyer->id,
+                    'name' => $buyer->name,
+                    'address' => $buyer->address,
+                    'phone' => $buyer->phone,
+                    'photo' => $buyer->photo,
+                ]
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status_code' => 500,

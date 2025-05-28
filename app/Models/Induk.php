@@ -38,4 +38,9 @@ class Induk extends Model
     {
         return $this->hasMany(RelasiAnakInduk::class);
     }
+
+    public function posting()
+    {
+        return $this->morphOne(PostingJual::class, 'burung');
+    }
 }

@@ -13,23 +13,28 @@ use Illuminate\Foundation\Http\FormRequest;
  * @bodyParam gambar_induk file Gambar induk (opsional) dalam format jpeg/png/jpg.
  */
 
-class StoreIndukRequest extends FormRequest
+class StorePostingJualRequest extends FormRequest
 {
     public function authorize()
     {
-        return true; // atau bisa tambahkan pengecekan role di sini
+        return true; // pastikan middleware auth menangani
     }
 
     public function rules()
     {
         return [
-            'admin_id' => 'exists:admin,id',
-            'no_ring' => 'nullable|string|max:255|unique:induk,no_ring',
-            'tanggal_lahir' => 'required|date',
-            'jenis_kelamin' => 'required|in:jantan,betina',
-            'jenis_kenari' => 'required|string|max:255',
-            'keterangan' => 'nullable|string',
-            'gambar_burung' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'burung_id' => 'required|integer',
+            'burung_type' => 'required|in:anak,induk',
+            'harga' => 'required|integer|min:0',
+            'deskripsi' => 'nullable|string',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'burung_id.required' => 'ID burung wajib diisi',
+            'burung_type.in' => 'Tipe burung harus anak atau induk',
         ];
     }
 }

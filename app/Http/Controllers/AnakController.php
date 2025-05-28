@@ -73,9 +73,9 @@ class AnakController extends Controller
             $anak->tanggal_lahir = $request->tanggal_lahir;
             $anak->jenis_kelamin = $request->jenis_kelamin;
             $anak->jenis_kenari = $request->jenis_kenari;
-            if ($request->hasFile('gambar_anak')) {
-                $path = $request->file('gambar_anak')->store('public/photos');
-                $anak->gambar_anak = Storage::url($path);
+            if ($request->hasFile('gambar_burung')) {
+                $path = $request->file('gambar_burung')->store('public/photos');
+                $anak->gambar_burung = Storage::url($path);
             }
 
             $anak->save();
@@ -126,7 +126,7 @@ class AnakController extends Controller
                     'tanggal_lahir' => $anak->tanggal_lahir,
                     'jenis_kelamin' => $anak->jenis_kelamin,
                     'jenis_kenari' => $anak->jenis_kenari,
-                    'gambar_anak' => $anak->gambar_anak,
+                    'gambar_burung' => $anak->gambar_burung,
                     'ayah_no_ring' => $ayah ? $ayah->no_ring : null,
                     'ibu_no_ring' => $ibu ? $ibu->no_ring : null,
                 ]
@@ -135,6 +135,163 @@ class AnakController extends Controller
             return response()->json([
                 'message' => 'Internal Server Error: ' . $e->getMessage(),
                 'status_code' => 500,
+                'data' => null
+            ], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $anak = Anak::with(['ayah', 'ibu'])->find($id);
+
+            if (!$anak) {
+                return response()->json([
+                    'message' => 'Data anak tidak ditemukan',
+                    'status_code' => 404,
+                    'data' => null
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Detail anak berhasil diambil',
+                'status_code' => 200,
+                'data' => [
+                    'id' => $anak->id,
+                    'no_ring' => $anak->no_ring,
+                    'tanggal_lahir' => $anak->tanggal_lahir,
+                    'jenis_kelamin' => $anak->jenis_kelamin,
+                    'jenis_kenari' => $anak->jenis_kenari,
+                    'gambar_burung' => $anak->gambar_burung,
+                    'ayah_no_ring' => optional($anak->ayah->first())->no_ring,
+                    'ibu_no_ring' => optional($anak->ibu->first())->no_ring,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Internal Server Error: ' . $e->getMessage(),
+                'status_code' => 500,
+                'data' => null
+            ]);
+        }
+    }
+
+    public function update(StoreAnakRequest $request, $id)
+    {
+        try {
+            $anak = Anak::find($id);
+
+            if (!$anak) {
+                return response()->json([
+                    'message' => 'Data anak tidak ditemukan',
+                    'status_code' => 404,
+                    'data' => null
+                ]);
+            }
+
+            if (Anak::where('no_ring', $request->no_ring)->where('id', '!=', $id)->exists()) {
+                return response()->json([
+                    'message' => 'Anak dengan nomor ring ini sudah ada',
+                    'status_code' => 409,
+                    'data' => null
+                ], 409);
+            }
+
+            $anak->no_ring = $request->no_ring;
+            $anak->tanggal_lahir = $request->tanggal_lahir;
+            $anak->jenis_kelamin = $request->jenis_kelamin;
+            $anak->jenis_kenari = $request->jenis_kenari;
+
+            if ($request->hasFile('gambar_burung')) {
+                // Hapus gambar lama jika ada
+                if ($anak->gambar_burung) {
+                    Storage::delete(str_replace('/storage/', 'public/', $anak->gambar_burung));
+                }
+                $path = $request->file('gambar_burung')->store('public/photos');
+                $anak->gambar_burung = Storage::url($path);
+            }
+
+            $anak->save();
+
+            RelasiAnakInduk::updateOrCreate(
+                ['anak_id' => $anak->id, 'status_induk_id' => 1],
+                ['induk_id' => $request->ayah_id]
+            );
+
+            RelasiAnakInduk::updateOrCreate(
+                ['anak_id' => $anak->id, 'status_induk_id' => 2],
+                ['induk_id' => $request->ibu_id]
+            );
+            $induks = Induk::whereIn('id', [$request->ayah_id, $request->ibu_id])->get()->keyBy('id');
+            $ayah = $induks[$request->ayah_id] ?? null;
+            $ibu = $induks[$request->ibu_id] ?? null;
+
+            if (!$ayah || !$ibu) {
+                return response()->json([
+                    'message' => 'Data ayah atau ibu tidak ditemukan',
+                    'status_code' => 404,
+                    'data' => null
+                ], 404);
+            }
+
+
+            return response()->json([
+                'message' => 'Data anak berhasil diperbarui',
+                'status_code' => 200,
+                'data' => [
+                    'id' => $anak->id,
+                    'no_ring' => $anak->no_ring,
+                    'tanggal_lahir' => $anak->tanggal_lahir,
+                    'jenis_kelamin' => $anak->jenis_kelamin,
+                    'jenis_kenari' => $anak->jenis_kenari,
+                    'gambar_burung' => $anak->gambar_burung,
+                    'ayah_no_ring' => optional($anak->ayah->first())->no_ring,
+                    'ibu_no_ring' => optional($anak->ibu->first())->no_ring,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Internal Server Error: ' . $e->getMessage(),
+                'status_code' => 500,
+                'data' => null
+            ]);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $anak = Anak::find($id);
+
+            if (!$anak) {
+                return response()->json([
+                    'message' => 'Data anak tidak ditemukan',
+                    'status_code' => 404,
+                    'data' => null
+                ], 404);
+            }
+
+            // Hapus relasi ayah & ibu
+            RelasiAnakInduk::where('anak_id', $anak->id)->delete();
+
+            // Hapus foto dari storage jika ada
+            if ($anak->gambar_burung) {
+                $path = str_replace('/storage/', 'public/', $anak->gambar_burung);
+                Storage::delete($path);
+            }
+
+            // Hapus data anak
+            $anak->delete();
+
+            return response()->json([
+                'message' => 'Data anak berhasil dihapus',
+                'status_code' => 200,
+                'data' => null
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'Internal Server Error: ' . $e->getMessage(),
                 'data' => null
             ], 500);
         }

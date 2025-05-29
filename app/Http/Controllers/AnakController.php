@@ -32,6 +32,8 @@ class AnakController extends Controller
                 return [
                     'id' => $anak->id,
                     'no_ring' => $anak->no_ring,
+                    'gambar_burung' => $anak->gambar_burung ? asset('storage/' . $anak->gambar_burung) : null,
+
                     'tanggal_lahir' => $anak->tanggal_lahir,
                     'jenis_kelamin' => $anak->jenis_kelamin,
                     'jenis_kenari' => $anak->jenis_kenari,
@@ -74,8 +76,9 @@ class AnakController extends Controller
             $anak->jenis_kelamin = $request->jenis_kelamin;
             $anak->jenis_kenari = $request->jenis_kenari;
             if ($request->hasFile('gambar_burung')) {
-                $path = $request->file('gambar_burung')->store('public/photos');
-                $anak->gambar_burung = Storage::url($path);
+                $path = $request->file('gambar_burung')->store('photos', 'public');
+                $anak->gambar_burung = $path; // Simpan path relatif, bukan URL
+
             }
 
             $anak->save();
@@ -126,7 +129,7 @@ class AnakController extends Controller
                     'tanggal_lahir' => $anak->tanggal_lahir,
                     'jenis_kelamin' => $anak->jenis_kelamin,
                     'jenis_kenari' => $anak->jenis_kenari,
-                    'gambar_burung' => $anak->gambar_burung,
+                    'gambar_burung' => $anak->gambar_burung ? asset('storage/' . $anak->gambar_burung) : null,
                     'ayah_no_ring' => $ayah ? $ayah->no_ring : null,
                     'ibu_no_ring' => $ibu ? $ibu->no_ring : null,
                 ]
@@ -162,7 +165,7 @@ class AnakController extends Controller
                     'tanggal_lahir' => $anak->tanggal_lahir,
                     'jenis_kelamin' => $anak->jenis_kelamin,
                     'jenis_kenari' => $anak->jenis_kenari,
-                    'gambar_burung' => $anak->gambar_burung,
+                    'gambar_burung' => $anak->gambar_burung ? asset('storage/' . $anak->gambar_burung) : null,
                     'ayah_no_ring' => optional($anak->ayah->first())->no_ring,
                     'ibu_no_ring' => optional($anak->ibu->first())->no_ring,
                 ]
@@ -205,10 +208,10 @@ class AnakController extends Controller
             if ($request->hasFile('gambar_burung')) {
                 // Hapus gambar lama jika ada
                 if ($anak->gambar_burung) {
-                    Storage::delete(str_replace('/storage/', 'public/', $anak->gambar_burung));
+                    Storage::delete('public/' . $anak->gambar_burung);
                 }
                 $path = $request->file('gambar_burung')->store('public/photos');
-                $anak->gambar_burung = Storage::url($path);
+                $anak->gambar_burung = $path;
             }
 
             $anak->save();
@@ -244,7 +247,7 @@ class AnakController extends Controller
                     'tanggal_lahir' => $anak->tanggal_lahir,
                     'jenis_kelamin' => $anak->jenis_kelamin,
                     'jenis_kenari' => $anak->jenis_kenari,
-                    'gambar_burung' => $anak->gambar_burung,
+                    'gambar_burung' => $anak->gambar_burung ? asset('storage/' . $anak->gambar_burung) : null,
                     'ayah_no_ring' => optional($anak->ayah->first())->no_ring,
                     'ibu_no_ring' => optional($anak->ibu->first())->no_ring,
                 ]

@@ -170,9 +170,9 @@ class ProfileController extends Controller
             $buyer->phone = $request->phone;
 
             if ($request->hasFile('photo')) {
-                $file = $request->file('photo');
-                $path = Storage::putFile('public/photos', $file);
-                $buyer->photo = Storage::url($path);
+                $path = $request->file('photo')->store('photos', 'public');
+                $buyer->photo = $path; // simpan hanya photos/abc.jpg
+
             }
 
             $buyer->save();
@@ -211,6 +211,8 @@ class ProfileController extends Controller
                 ], 404);
             }
 
+            $image = $buyer->photo ? asset('storage/' . $buyer->photo) : null;
+
             return response()->json([
                 'message' => 'Profil pembeli ditemukan',
                 'status_code' => 200,
@@ -219,7 +221,7 @@ class ProfileController extends Controller
                     'name' => $buyer->name,
                     'address' => $buyer->address,
                     'phone' => $buyer->phone,
-                    'photo' => $buyer->photo,
+                    'photo' => $image,
                 ]
             ], 200);
         } catch (\Exception $e) {

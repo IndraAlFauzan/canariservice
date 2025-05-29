@@ -57,9 +57,9 @@ class IndukController extends Controller
      */
     public function index()
     {
-        $data = Induk::all();
-
         try {
+            $data = Induk::all();
+
             if ($data->isEmpty()) {
                 return response()->json([
                     'message' => 'Tidak ada data induk',
@@ -67,10 +67,23 @@ class IndukController extends Controller
                     'data' => [],
                 ]);
             }
+
+            $formattedData = $data->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'no_ring' => $item->no_ring,
+                    'tanggal_lahir' => $item->tanggal_lahir,
+                    'jenis_kelamin' => $item->jenis_kelamin,
+                    'jenis_kenari' => $item->jenis_kenari,
+                    'keterangan' => $item->keterangan,
+                    'gambar_burung' => $item->gambar_burung ? asset('storage/' . $item->gambar_burung) : null,
+                ];
+            });
+
             return response()->json([
                 'message' => 'Data induk berhasil diambil',
                 'status_code' => 200,
-                'data' => $data,
+                'data' => $formattedData,
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -80,6 +93,7 @@ class IndukController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Tambah data induk
@@ -116,10 +130,6 @@ class IndukController extends Controller
         try {
             $user = Auth::guard('api')->user();
 
-
-            $induk = new Induk();
-
-            // Validasi apakah no_ring sudah ada
             if (Induk::where('no_ring', $request->no_ring)->exists()) {
                 return response()->json([
                     'message' => 'No ring sudah digunakan',
@@ -128,6 +138,7 @@ class IndukController extends Controller
                 ], 422);
             }
 
+            $induk = new Induk();
             $induk->admin_id = $user->admin->id;
             $induk->no_ring = $request->no_ring;
             $induk->tanggal_lahir = $request->tanggal_lahir;
@@ -136,20 +147,24 @@ class IndukController extends Controller
             $induk->keterangan = $request->keterangan;
 
             if ($request->hasFile('gambar_burung')) {
-                $path = $request->file('gambar_burung')->store('public/photos');
-                $induk->gambar_burung = Storage::url($path);
+                $path = $request->file('gambar_burung')->store('photos', 'public');
+                $induk->gambar_burung = $path;
             }
-
-
-
-
 
             $induk->save();
 
             return response()->json([
                 'message' => 'Data induk berhasil ditambahkan',
                 'status_code' => 201,
-                'data' => $induk,
+                'data' => [
+                    'id' => $induk->id,
+                    'no_ring' => $induk->no_ring,
+                    'tanggal_lahir' => $induk->tanggal_lahir,
+                    'jenis_kelamin' => $induk->jenis_kelamin,
+                    'jenis_kenari' => $induk->jenis_kenari,
+                    'keterangan' => $induk->keterangan,
+                    'gambar_burung' => $induk->gambar_burung ? asset('storage/' . $induk->gambar_burung) : null,
+                ]
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -159,6 +174,7 @@ class IndukController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Ambil detail induk

@@ -165,7 +165,7 @@ class IndukController extends Controller
                     'keterangan' => $induk->keterangan,
                     'gambar_burung' => $induk->gambar_burung ? asset('storage/' . $induk->gambar_burung) : null,
                 ]
-            ]);
+            ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'status_code' => 500,

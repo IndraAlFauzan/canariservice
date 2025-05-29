@@ -76,14 +76,22 @@ class PostingJualController extends Controller
         $posting->burung()->associate($burung);
         $posting->save();
 
+        $burung = $posting->burung;
+        $tanggal_lahir = $burung?->tanggal_lahir;
+        $image = $burung?->gambar_burung ? asset('storage/' . $burung->gambar_burung) : null;
+
         return response()->json([
-            'message' => 'Burung berhasil diposting untuk dijual',
+            'message' => 'Detail posting ditemukan',
             'status_code' => 201,
             'data' => [
                 'id' => $posting->id,
-                'burung_type' => $request->burung_type,
-                'burung_id' => $request->burung_id,
-                'harga' => $request->harga,
+                'image' => $image,
+                'no_ring' => $burung?->no_ring ?? '-',
+                'jenis_kelamin' => $burung?->jenis_kelamin ?? '-',
+                'usia' => $tanggal_lahir ? now()->diffInMonths($tanggal_lahir) . ' bulan' : '-',
+                'jenis_kenari' => $burung?->jenis_kenari ?? '-',
+                'harga' => $posting->harga,
+                'deskripsi' => $posting->deskripsi,
                 'status' => $posting->status,
             ]
         ], 201);

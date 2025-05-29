@@ -133,7 +133,7 @@ class AnakController extends Controller
                     'ayah_no_ring' => $ayah ? $ayah->no_ring : null,
                     'ibu_no_ring' => $ibu ? $ibu->no_ring : null,
                 ]
-            ]);
+            ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Internal Server Error: ' . $e->getMessage(),

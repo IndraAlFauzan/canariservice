@@ -373,9 +373,9 @@ class PostingJualController extends Controller
         if ($postings->isEmpty()) {
             return response()->json([
                 'message' => 'Tidak ada burung yang tersedia untuk dijual',
-                'status_code' => 404,
+                'status_code' => 200,
                 'data' => null
-            ], 404);
+            ], 200);
         }
 
         $data = $postings->map(function ($item) {

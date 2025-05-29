@@ -63,9 +63,9 @@ class IndukController extends Controller
             if ($data->isEmpty()) {
                 return response()->json([
                     'message' => 'Tidak ada data induk',
-                    'status_code' => 204,
+                    'status_code' => 200,
                     'data' => [],
-                ]);
+                ], 200);
             }
 
             $formattedData = $data->map(function ($item) {

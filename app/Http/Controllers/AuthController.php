@@ -199,6 +199,6 @@ class AuthController extends Controller
             'message' => 'Logout berhasil',
             'status_code' => 200,
             'data' => null
-        ]);
+        ], 200);
     }
 }

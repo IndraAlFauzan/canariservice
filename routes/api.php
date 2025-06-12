@@ -54,3 +54,7 @@ Route::middleware('auth:api', 'role:buyer')->group(function () {
     Route::get('buyer/profile', [ProfileController::class, 'getBuyerProfile']);
     Route::get('buyer/burung-semua-tersedia', [PostingJualController::class, 'getAllBurungTersedia']);
 });
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('burung-semua-tersedia', [PostingJualController::class, 'getAllBurungTersedia']);
+});

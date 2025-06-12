@@ -84,7 +84,7 @@ class IndukController extends Controller
                 'message' => 'Data induk berhasil diambil',
                 'status_code' => 200,
                 'data' => $formattedData,
-            ]);
+            ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'status_code' => 500,
@@ -212,14 +212,14 @@ class IndukController extends Controller
                 'message' => 'Data induk tidak ditemukan',
                 'status_code' => 404,
                 'data' => null,
-            ]);
+            ], 404);
         }
 
         return response()->json([
             'message' => 'Detail induk berhasil diambil',
             'status_code' => 200,
             'data' => $induk,
-        ]);
+        ], 200);
     }
 
     /**
@@ -249,7 +249,7 @@ class IndukController extends Controller
                 'message' => 'Data induk tidak ditemukan',
                 'status_code' => 404,
                 'data' => null,
-            ]);
+            ], 404);
         }
 
         $induk->fill($request->only([
@@ -275,7 +275,7 @@ class IndukController extends Controller
             'message' => 'Data induk berhasil diperbarui',
             'status_code' => 200,
             'data' => $induk,
-        ]);
+        ], 200);
     }
 
     /**
@@ -317,6 +317,6 @@ class IndukController extends Controller
             'message' => 'Data induk berhasil dihapus',
             'status_code' => 200,
             'data' => null,
-        ]);
+        ], 200);
     }
 }

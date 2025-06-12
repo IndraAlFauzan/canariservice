@@ -278,7 +278,7 @@ class PostingJualController extends Controller
                     'id' => $posting->id,
                     'status' => $posting->status
                 ]
-            ]);
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
@@ -360,7 +360,7 @@ class PostingJualController extends Controller
             'message' => 'Daftar semua burung',
             'status_code' => 200,
             'data' => $anak->merge($induk)->values()
-        ]);
+        ], 200);
     }
 
     //get all data by status tersedia   

@@ -25,7 +25,7 @@ class AnakController extends Controller
                     'message' => 'Tidak ada data anak yang ditemukan',
                     'status_code' => 404,
                     'data' => []
-                ]);
+                ], 404);
             }
 
             $data = $anakList->map(function ($anak) {
@@ -46,13 +46,13 @@ class AnakController extends Controller
                 'message' => 'Data anak berhasil diambil',
                 'status_code' => 200,
                 'data' => $data
-            ]);
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Internal Server Error: ' . $e->getMessage(),
                 'status_code' => 500,
                 'data' => null
-            ]);
+            ], 500);
         }
     }
 
@@ -153,7 +153,7 @@ class AnakController extends Controller
                     'message' => 'Data anak tidak ditemukan',
                     'status_code' => 404,
                     'data' => null
-                ]);
+                ], 404);
             }
 
             return response()->json([
@@ -169,13 +169,13 @@ class AnakController extends Controller
                     'ayah_no_ring' => optional($anak->ayah->first())->no_ring,
                     'ibu_no_ring' => optional($anak->ibu->first())->no_ring,
                 ]
-            ]);
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Internal Server Error: ' . $e->getMessage(),
                 'status_code' => 500,
                 'data' => null
-            ]);
+            ], 500);
         }
     }
 
@@ -189,7 +189,7 @@ class AnakController extends Controller
                     'message' => 'Data anak tidak ditemukan',
                     'status_code' => 404,
                     'data' => null
-                ]);
+                ], 404);
             }
 
             if (Anak::where('no_ring', $request->no_ring)->where('id', '!=', $id)->exists()) {
@@ -251,7 +251,7 @@ class AnakController extends Controller
                     'ayah_no_ring' => optional($anak->ayah->first())->no_ring,
                     'ibu_no_ring' => optional($anak->ibu->first())->no_ring,
                 ]
-            ]);
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Internal Server Error: ' . $e->getMessage(),
@@ -290,7 +290,7 @@ class AnakController extends Controller
                 'message' => 'Data anak berhasil dihapus',
                 'status_code' => 200,
                 'data' => null
-            ]);
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'status_code' => 500,
